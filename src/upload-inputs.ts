@@ -1,4 +1,4 @@
-import {NoFileOptions} from './constants'
+import { NoFileOptions } from './constants'
 
 export interface UploadInputs {
   /**
@@ -20,4 +20,9 @@ export interface UploadInputs {
    * Duration after which artifact will expire in days
    */
   retentionDays: number
+
+  /**
+   * S3 Bucket to uploads to
+   */
+  s3Bucket: string
 }
