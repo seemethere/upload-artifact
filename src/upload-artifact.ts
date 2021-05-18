@@ -69,18 +69,16 @@ async function run(): Promise<void> {
         }
         core.debug(`s3Params: ${JSON.stringify(s3Params)}`)
         core.info(`Starting upload of ${relativeName}`)
-        await s3
-          .putObject(s3Params, err => {
-            if (err) {
-              core.error(`Error uploading file ${relativeName}, ${err}`)
-              throw err
-            } else {
-              core.info(
-                `Done uploading ${relativeName}, expires ${expirationDate}`
-              )
-            }
-          })
-          .promise()
+        s3.putObject(s3Params, err => {
+          if (err) {
+            core.error(`Error uploading file ${relativeName}, ${err}`)
+            throw err
+          } else {
+            core.info(
+              `Done uploading ${relativeName}, expires ${expirationDate}`
+            )
+          }
+        })
       }
     }
   } catch (err) {
