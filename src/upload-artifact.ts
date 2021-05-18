@@ -51,23 +51,34 @@ async function run(): Promise<void> {
       const expirationDate = new Date(today)
       expirationDate.setDate(expirationDate.getDate() + retentionDays)
       for await (const fileName of searchResult.filesToUpload) {
+        core.debug(
+          JSON.stringify({rootDirectory: searchResult.rootDirectory, fileName})
+        )
+        // Add trailing / to root directory to solve issues where root directory doesn't
+        // look to be relative
+        const relativeName = fileName.replace(
+          `${searchResult.rootDirectory}/`,
+          ''
+        )
+        const s3Key = `${s3Prefix}/${relativeName}`
         const s3Params = {
           ACL: 'public-read',
           Bucket: inputs.s3Bucket,
-          Key: `${s3Prefix}/${fileName}`,
+          Key: s3Key,
           Body: fs.readFileSync(fileName),
           Expires: expirationDate
         }
         core.debug(`s3Params: ${JSON.stringify(s3Params)}`)
-        core.info(`Started upload of ${fileName}`)
+        core.info(`Starting upload of ${relativeName}`)
         await s3
           .putObject(s3Params, err => {
             if (err) {
-              core.error(`Error uploading file ${fileName}, ${err}`)
-              core.setFailed('Error uploading artifacts')
-              return
+              core.error(`Error uploading file ${relativeName}, ${err}`)
+              throw err
             } else {
-              core.info(`Done uploading ${fileName}, expires ${expirationDate}`)
+              core.info(
+                `Done uploading ${relativeName}, expires ${expirationDate}`
+              )
             }
           })
           .promise()
