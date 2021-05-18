@@ -51,28 +51,25 @@ async function run(): Promise<void> {
       const expirationDate = new Date(today)
       expirationDate.setDate(expirationDate.getDate() + retentionDays)
       for await (const fileName of searchResult.filesToUpload) {
+        const s3Params = {
+          ACL: 'public-read',
+          Bucket: inputs.s3Bucket,
+          Key: `${s3Prefix}/${fileName}`,
+          Body: fs.readFileSync(fileName),
+          Expires: expirationDate
+        }
+        core.debug(`s3Params: ${JSON.stringify(s3Params)}`)
         core.info(`Started upload of ${fileName}`)
         await s3
-          .putObject(
-            {
-              ACL: 'public-read',
-              Bucket: inputs.s3Bucket,
-              Key: `${s3Prefix}/${fileName}`,
-              Body: fs.readFileSync(fileName),
-              Expires: expirationDate
-            },
-            err => {
-              if (err) {
-                core.error(`Error uploading file ${fileName}, ${err}`)
-                core.setFailed('Error uploading artifacts')
-                return
-              } else {
-                core.info(
-                  `Done uploading ${fileName}, expires ${expirationDate}`
-                )
-              }
+          .putObject(s3Params, err => {
+            if (err) {
+              core.error(`Error uploading file ${fileName}, ${err}`)
+              core.setFailed('Error uploading artifacts')
+              return
+            } else {
+              core.info(`Done uploading ${fileName}, expires ${expirationDate}`)
             }
-          )
+          })
           .promise()
       }
     }
