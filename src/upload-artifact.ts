@@ -62,7 +62,6 @@ async function run(): Promise<void> {
         )
         const s3Key = `${s3Prefix}/${relativeName}`
         const s3Params = {
-          ACL: 'public-read',
           Bucket: inputs.s3Bucket,
           Key: s3Key,
           Body: fs.readFileSync(fileName),
