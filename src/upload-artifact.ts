@@ -33,7 +33,7 @@ async function run(): Promise<void> {
         }
       }
     } else {
-      const s3 = new AWS.S3()
+      const s3 = new AWS.S3({region: inputs.region})
       const s3Prefix = `${github.context.repo.owner}/${github.context.repo.repo}/${github.context.runId}/${inputs.artifactName}`
       const s = searchResult.filesToUpload.length === 1 ? '' : 's'
       core.info(
@@ -50,12 +50,7 @@ async function run(): Promise<void> {
       const today = new Date()
       const expirationDate = new Date(today)
       expirationDate.setDate(expirationDate.getDate() + retentionDays)
-      // TODO: Find a better workaround for this
-      // NOTE: Needed for resolving tls issues when attempting to do upload
-      // see: https://github.com/aws/aws-sdk-js/issues/139
-      // see: https://github.com/chilts/awssum/issues/164
-      process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0'
-      for await (const fileName of searchResult.filesToUpload) {
+      for (const fileName of searchResult.filesToUpload) {
         core.debug(
           JSON.stringify({rootDirectory: searchResult.rootDirectory, fileName})
         )

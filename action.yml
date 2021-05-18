@@ -25,7 +25,12 @@ inputs:
       Maximum 90 days unless changed from the repository settings page.
   s3-bucket:
     description: >
-      S3 Bucket to use to put your artifacts in, typically something like "ci-artifacts"
+      S3 Bucket to use to put your artifacts in, typically something like "gha-artifacts"
+    default: 'gha-artifacts'
+  region:
+    description: >
+      Region your s3 bucket is in
+    default: 'us-east-1'
 runs:
   using: 'node12'
   main: 'dist/index.js'

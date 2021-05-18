@@ -12,6 +12,7 @@ export function getInputs(): UploadInputs {
   const ifNoFilesFound = core.getInput(Inputs.IfNoFilesFound)
   const noFileBehavior: NoFileOptions = NoFileOptions[ifNoFilesFound]
   const s3Bucket = core.getInput(Inputs.S3Bucket)
+  const region = core.getInput(Inputs.Region)
 
   if (!noFileBehavior) {
     core.setFailed(
@@ -27,7 +28,8 @@ export function getInputs(): UploadInputs {
     artifactName: name,
     searchPath: path,
     ifNoFilesFound: noFileBehavior,
-    s3Bucket: s3Bucket
+    s3Bucket: s3Bucket,
+    region: region
   } as UploadInputs
 
   const retentionDaysStr = core.getInput(Inputs.RetentionDays)
