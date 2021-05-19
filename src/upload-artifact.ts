@@ -2,6 +2,7 @@ import * as core from '@actions/core'
 import * as github from '@actions/github'
 import * as AWS from 'aws-sdk'
 import * as fs from 'fs'
+import * as path from 'path'
 import {findFilesToUpload} from './search'
 import {getInputs} from './input-helper'
 import {NoFileOptions} from './constants'
@@ -54,10 +55,10 @@ async function run(): Promise<void> {
         core.debug(
           JSON.stringify({rootDirectory: searchResult.rootDirectory, fileName})
         )
-        // Add trailing / to root directory to solve issues where root directory doesn't
+        // Add trailing path.sep to root directory to solve issues where root directory doesn't
         // look to be relative
         const relativeName = fileName.replace(
-          `${searchResult.rootDirectory}/`,
+          String.raw`${searchResult.rootDirectory}${path.sep}`,
           ''
         )
         const uploadKey = `${s3Prefix}/${relativeName}`
@@ -66,18 +67,19 @@ async function run(): Promise<void> {
           Body: fs.createReadStream(fileName),
           Bucket: inputs.s3Bucket,
           Expires: expirationDate,
-          Key: uploadKey
+          // conform windows paths to unix style paths
+          Key: uploadKey.replace(path.sep, '/')
         }
         const uploadOptions = {partSize: 10 * 1024 * 1024, queueSize: 5}
-        core.debug(`s3Params: ${JSON.stringify(uploadParams)}`)
         core.info(`Starting upload of ${relativeName}`)
         try {
           await s3.upload(uploadParams, uploadOptions).promise()
         } catch (err) {
           core.error(`Error uploading ${relativeName}`)
           throw err
+        } finally {
+          core.info(`Finished upload of ${relativeName}`)
         }
-        core.info(`Finished upload of ${relativeName}`)
       }
     }
   } catch (err) {
