@@ -33,7 +33,7 @@ async function run(): Promise<void> {
         }
       }
     } else {
-      const s3 = new AWS.S3({region: inputs.region})
+      const s3 = new AWS.S3({region: inputs.region, maxRetries: 10})
       const s3Prefix = `${github.context.repo.owner}/${github.context.repo.repo}/${github.context.runId}/${inputs.artifactName}`
       const s = searchResult.filesToUpload.length === 1 ? '' : 's'
       core.info(
@@ -50,7 +50,7 @@ async function run(): Promise<void> {
       const today = new Date()
       const expirationDate = new Date(today)
       expirationDate.setDate(expirationDate.getDate() + retentionDays)
-      for (const fileName of searchResult.filesToUpload) {
+      for await (const fileName of searchResult.filesToUpload) {
         core.debug(
           JSON.stringify({rootDirectory: searchResult.rootDirectory, fileName})
         )
@@ -60,25 +60,24 @@ async function run(): Promise<void> {
           `${searchResult.rootDirectory}/`,
           ''
         )
-        const s3Key = `${s3Prefix}/${relativeName}`
-        const s3Params = {
+        const uploadKey = `${s3Prefix}/${relativeName}`
+        const uploadParams = {
+          ACL: 'public-read',
+          Body: fs.createReadStream(fileName),
           Bucket: inputs.s3Bucket,
-          Key: s3Key,
-          Body: fs.readFileSync(fileName),
-          Expires: expirationDate
+          Expires: expirationDate,
+          Key: uploadKey
         }
-        core.debug(`s3Params: ${JSON.stringify(s3Params)}`)
+        const uploadOptions = {partSize: 10 * 1024 * 1024, queueSize: 5}
+        core.debug(`s3Params: ${JSON.stringify(uploadParams)}`)
         core.info(`Starting upload of ${relativeName}`)
-        s3.putObject(s3Params, err => {
-          if (err) {
-            core.error(`Error uploading file ${relativeName}, ${err}`)
-            throw err
-          } else {
-            core.info(
-              `Done uploading ${relativeName}, expires ${expirationDate}`
-            )
-          }
-        })
+        try {
+          await s3.upload(uploadParams, uploadOptions).promise()
+        } catch (err) {
+          core.error(`Error uploading ${relativeName}`)
+          throw err
+        }
+        core.info(`Finished upload of ${relativeName}`)
       }
     }
   } catch (err) {
