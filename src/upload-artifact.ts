@@ -63,7 +63,6 @@ async function run(): Promise<void> {
         )
         const uploadKey = `${s3Prefix}/${relativeName}`
         const uploadParams = {
-          ACL: 'public-read',
           Body: fs.createReadStream(fileName),
           Bucket: inputs.s3Bucket,
           Expires: expirationDate,
