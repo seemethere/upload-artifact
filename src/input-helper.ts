@@ -12,6 +12,7 @@ export function getInputs(): UploadInputs {
   const ifNoFilesFound = core.getInput(Inputs.IfNoFilesFound)
   const noFileBehavior: NoFileOptions = NoFileOptions[ifNoFilesFound]
   const s3Bucket = core.getInput(Inputs.S3Bucket)
+  const s3Prefix = core.getInput(Inputs.S3Prefix)
   const region = core.getInput(Inputs.Region)
 
   if (!noFileBehavior) {
@@ -29,6 +30,7 @@ export function getInputs(): UploadInputs {
     searchPath: path,
     ifNoFilesFound: noFileBehavior,
     s3Bucket: s3Bucket,
+    s3Prefix: s3Prefix,
     region: region
   } as UploadInputs
 
