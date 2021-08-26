@@ -2,7 +2,9 @@ import * as core from '@actions/core'
 import * as github from '@actions/github'
 import * as AWS from 'aws-sdk'
 import * as fs from 'fs'
+import {getType} from 'mime'
 import * as path from 'path'
+
 import {findFilesToUpload} from './search'
 import {getInputs} from './input-helper'
 import {NoFileOptions} from './constants'
@@ -74,7 +76,8 @@ async function run(): Promise<void> {
           Bucket: inputs.s3Bucket,
           Expires: expirationDate,
           // conform windows paths to unix style paths
-          Key: uploadKey.replace(path.sep, '/')
+          Key: uploadKey.replace(path.sep, '/'),
+          ContentType: getType(uploadKey)
         }
         const uploadOptions = {partSize: 10 * 1024 * 1024, queueSize: 5}
         core.info(`Starting upload of ${relativeName}`)
