@@ -35,7 +35,14 @@ async function run(): Promise<void> {
       }
     } else {
       const s3 = new AWS.S3({region: inputs.region, maxRetries: 10})
-      const s3Prefix = `${github.context.repo.owner}/${github.context.repo.repo}/${github.context.runId}/${inputs.artifactName}`
+      if (inputs.s3Prefix !== '') {
+        core.info('NOTE: s3-prefix specified, ignoring name parameter')
+      }
+      // If s3Prefix is left blank then just use the actual default derived from the github context
+      const s3Prefix =
+        inputs.s3Prefix === ''
+          ? inputs.s3Prefix
+          : `${github.context.repo.owner}/${github.context.repo.repo}/${github.context.runId}/${inputs.artifactName}`
       const s = searchResult.filesToUpload.length === 1 ? '' : 's'
       core.info(
         `With the provided path, there will be ${searchResult.filesToUpload.length} file${s} uploaded`

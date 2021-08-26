@@ -25,6 +25,12 @@ export interface UploadInputs {
    * S3 Bucket to uploads to
    */
   s3Bucket: string
+
+  /**
+   * S3 Prefix to upload to
+   */
+  s3Prefix: string
+
   /**
    * AWS region where your s3 bucket lives
    */

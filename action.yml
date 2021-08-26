@@ -27,6 +27,12 @@ inputs:
     description: >
       S3 Bucket to use to put your artifacts in, typically something like "gha-artifacts"
     default: 'gha-artifacts'
+  s3-prefix:
+    description: >
+      S3 prefix to use to besides the default prefix, typically something like "${repo_owner}/${repo_name}/${run_id}/${artifact_name}"
+
+      NOTE: when using this parameter the name parameter is ignored
+    default: ''
   region:
     description: >
       Region your s3 bucket is in

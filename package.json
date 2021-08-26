@@ -4,8 +4,9 @@
   "description": "Upload a build artifact that can be used by subsequent workflow steps",
   "main": "dist/index.js",
   "scripts": {
+    "all": "npm run format && npm run build && npm run lint && npm run release",
     "build": "tsc",
-    "release": "ncc build src/upload-artifact.ts && git add -f dist/",
+    "release": "ncc build src/upload-artifact.ts",
     "check-all": "concurrently \"npm:format-check\" \"npm:lint\" \"npm:test\" \"npm:build\"",
     "format": "prettier --write **/*.ts",
     "format-check": "prettier --check **/*.ts",
