@@ -52,11 +52,6 @@ async function run(): Promise<void> {
       core.info(`Uploading to s3 prefix: ${s3Prefix}`)
       core.debug(`Root artifact directory is ${searchResult.rootDirectory} `)
 
-      if (searchResult.filesToUpload.length > 10000) {
-        core.warning(
-          `There are over 10, 000 files in this artifact, consider create an archive before upload to improve the upload performance.`
-        )
-      }
       const retentionDays = inputs.retentionDays ? inputs.retentionDays : 90
       const today = new Date()
       const expirationDate = new Date(today)
