@@ -40,10 +40,12 @@ async function run(): Promise<void> {
       if (inputs.s3Prefix !== '') {
         core.info('NOTE: s3-prefix specified, ignoring name parameter')
       }
+      // TODO: This is a temporary bandaid, see https://github.com/actions/toolkit/pull/1027
+      const runAttempt = parseInt(process.env.GITHUB_RUN_ATTEMPT as string, 10)
       // If s3Prefix is left blank then just use the actual default derived from the github context
       const s3Prefix =
         inputs.s3Prefix === ''
-          ? `${github.context.repo.owner}/${github.context.repo.repo}/${github.context.runId}/${inputs.artifactName}`
+          ? `${github.context.repo.owner}/${github.context.repo.repo}/${github.context.runId}/${github.context.runNumber}/${runAttempt}/${github.context.job}/${inputs.artifactName}`
           : inputs.s3Prefix
       const s = searchResult.filesToUpload.length === 1 ? '' : 's'
       core.info(
