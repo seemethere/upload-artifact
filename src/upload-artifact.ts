@@ -45,7 +45,7 @@ async function run(): Promise<void> {
       // If s3Prefix is left blank then just use the actual default derived from the github context
       const s3Prefix =
         inputs.s3Prefix === ''
-          ? `${github.context.repo.owner}/${github.context.repo.repo}/${github.context.runId}/${runAttempt}/${inputs.artifactName}`
+          ? `${github.context.repo.owner}/${github.context.repo.repo}/${github.context.runId}/${github.context.runNumber}/${runAttempt}/${github.context.job}/${inputs.artifactName}`
           : inputs.s3Prefix
       const s = searchResult.filesToUpload.length === 1 ? '' : 's'
       core.info(
