@@ -41,5 +41,5 @@ inputs:
       Region your s3 bucket is in
     default: 'us-east-1'
 runs:
-  using: 'node16'
+  using: 'node20'
   main: 'dist/index.js'
